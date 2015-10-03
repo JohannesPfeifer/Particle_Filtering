@@ -5,7 +5,10 @@
 % positive definite matrix will still yield draws from the ergodic distribution 
 % (see Chib/Greenberg (1995))
 % 
-% Copyright (C) 2013-2014 Benjamin Born + Johannes Pfeifer
+% To perform mode-finding using the CMA-ES algorithm, uncomment the code in lines 101 following and 
+% download the cmaes.m from the provided link.
+% 
+% Copyright (C) 2013-2015 Benjamin Born + Johannes Pfeifer
 %
 % This is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -72,7 +75,6 @@ shocks      = randn(PFstreamrandn,num_sim_filter,periods);
 PFstreamrand = RandStream('mt19937ar','Seed',2);
 randnr             = rand(PFstreamrand,periods,num_sim_filter);
 
-
 %initialize matrices
 draws=zeros(MH_draws+burnin,npar);
 likelihood=zeros(MH_draws+burnin,1);
@@ -88,16 +90,32 @@ fname=['simulation_',tempdate];
 scale_mh = 2; %scale factor for proposal density to get acceptance rate of 23-40 percent
 accept=0;
 
-%set startig value, starts a true values and makes mode-finding redundant
+%set startig value, starts at true values and makes mode-finding redundant
 draws(1,:)=[rho_sigma_trans,rho_trans,eta_sigma_trans,sigma_bar_trans];
-old_posterior = PF_caller(draws(1,:),observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,1); %!!! reset 1 to 0
-likelihood(1,1)=old_posterior;
-
 
 % set jumping matrix for proposal density
 % uses simple identity matrix instead of Hessian at the mode
 inv_Hessian = 1e-3*eye(4); 
 Sigma_chol = cholcov(inv_Hessian)';
+
+%% Maximize posterior using the CMA-ES algorithm of Hansen et al. (for example included in Dynare and available at https://www.lri.fr/~hansen/cmaes_inmatlab.html)
+% vm=0.1*ones(npar,1);
+% opts=struct('MaxFunEvals',1000,'SaveVariables','off','DispFinal','off','WarnOnEqualFunctionValues','no','DispModulo','100','LogModulo','0','LogTime','0');
+% [x, FMIN, COUNTEVAL, STOPFLAG, OUT, BESTEVER] = cmaes('PF_caller_minimizer',draws(1,:)',vm,opts,observable_series,num_sim_filter,dimy,shocks,randnr,0);
+% draws(1,:)=BESTEVER.x;
+
+%% Compute the Hessian at the mode, using Dynare's hessian.m; Note that this is not advocated as the numerical differentiation will usually not work 
+%% due to the non-differentiability of the likelihood function
+% gstep = ones(2,1);
+% gstep(1) = 1e-2;
+% gstep(2) = 1.0;
+% hessian_mat = reshape(hessian('PF_caller',xopt,gstep,observable_series,num_sim_filter,dimy,shocks,randnr,0),length(xopt),length(xopt));
+% Sigma_chol = cholcov(inv(hessian_mat))';
+
+
+old_posterior = PF_caller(draws(1,:),observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,0);
+likelihood(1,1)=old_posterior;
+
 
 
 proposal_draws = scale_mh*Sigma_chol*randn(4,MH_draws+burnin);

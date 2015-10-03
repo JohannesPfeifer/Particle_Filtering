@@ -43,10 +43,10 @@ x_hat=NaN(T,1);
 x_std=NaN(T,1);
 Eff_particle=NaN(T,1);
 
-rho_sigma=draw(1,1);
-rho=draw(1,2);
-eta_sigma=draw(1,3);
-sigma_bar=draw(1,4);
+rho_sigma=draw(1);
+rho=draw(2);
+eta_sigma=draw(3);
+sigma_bar=draw(4);
 
 [rho_sigma,rho,eta_sigma,sigma_bar]=par_retransform_AR1(rho_sigma,rho,eta_sigma,sigma_bar);
 
