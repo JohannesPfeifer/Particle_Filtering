@@ -170,7 +170,7 @@ rho_trans=mean(draws(burnin:ii,2));
 eta_sigma_trans=mean(draws(burnin:ii,3));
 sigma_bar_trans=mean(draws(burnin:ii,4));
 
-% make sure tu use parameters as they are the input arguments!
+% make sure to use parameters as they are the input arguments!
 PF_caller([rho_sigma_trans,rho_trans,eta_sigma_trans,sigma_bar_trans],observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,1,'Stoch_vol_AR_smoother');
 
 % load smoother results
