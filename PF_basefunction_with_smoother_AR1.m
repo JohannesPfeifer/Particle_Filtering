@@ -1,5 +1,5 @@
 function [LogL,Eff_particle,x_hat,x_std] = PF_basefunction_with_smoother_AR1(PF_density_computation_function,...
-    x0,y,num_sim_filter,num_sim_smoother,rho_sigma,rho_1,sigma_bar,eta_sigma,shocks,randnr,name,smoother_dummy)
+    x0,y,num_sim_filter,num_sim_smoother,rho_sigma,rho_1,sigma_bar,eta_sigma,name,smoother_dummy)
 %   This function calculates the standard Particle Filter for the system
 %   y(t)   =rho*y(t)+ e^sigma(t)*u(t)
 %   sigma(t+1) =(1-rho_sigma)*sigma_bar+rho_sigma*sigma(t) + eta_sigma*eps(t+1) 
@@ -19,8 +19,6 @@ function [LogL,Eff_particle,x_hat,x_std] = PF_basefunction_with_smoother_AR1(PF_
 %   num_sim_filter      scalar                          number of particles
 %   num_sim_smoother    scalar                          number of particles for smoother
 %   rho_sigma,rho_1,sigma_bar,eta_sigma scalars         Parameters of the LOM estimated with filter.
-%   shocks              [num_sim_filter by T] matrix    random numbers for propagation
-%   randnr              [num_sim_smoother by T] matrix  random numbers for resampling
 %   smoother_dummy      scalar                          dummy to call smoother
 %   name                string                          name of the file under which to save
 % 
@@ -51,7 +49,12 @@ function [LogL,Eff_particle,x_hat,x_std] = PF_basefunction_with_smoother_AR1(PF_
 % >>>>>>>>>>>>>>>>>>>>>>>>>>> INITIALIZATIONS <<<<<<<<<<<<<<<<<<<<<<<<<<
 dimy=size(y,2);
 dimx=size(x0,2);
+
 T_obs         = size(y,1);      % The sample size
+%draw random numbers used
+shocks = randn(num_sim_filter,T_obs);
+randnr = rand(T_obs,1);
+
 % Setting dimensions
 x_hat           = zeros(T_obs,dimx);   % Matrix for the posterior state estimates
 x_std           = zeros(T_obs,dimx);   % Matrix for the posterior state estimate standard deviation

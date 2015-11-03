@@ -1,12 +1,10 @@
-function [logpost,x_hat,x_std,Eff_particle]=PF_caller(draw,observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,smoother_dummy,name)
+function [logpost,x_hat,x_std,Eff_particle]=PF_caller(draw,observable_series,num_sim_filter,num_sim_smoother,smoother_dummy,name)
 % [loglik, flag, xhat_PF0,x_std_PF0,Eff_particle]=Particle_smoother(draw,observable_series,num_sim,graph_dummy,name)
 %Inputs:
 %   draw                [4 by 1] vector                 vector of estimated parameters
 %   observable_series   [T by 1] vector                 observed data
 %   num_sim_filter      scalar                          number of particles
 %   num_sim_smoother    scalar                          number of particles for smoother
-%   shocks              [num_sim_filter by T] matrix    random numbers for propagation
-%   randnr              [num_sim_smoother by T] matrix  random numbers for resampling
 %   smoother_dummy      scalar                          dummy to call smoother
 %   name                string                          name of the file under which to save
 %                                                       from smoother
@@ -33,7 +31,7 @@ function [logpost,x_hat,x_std,Eff_particle]=PF_caller(draw,observable_series,num
 % See <http://www.gnu.org/licenses/>.
 
 
-if nargin<8
+if nargin<6
    name='smootherresults';
 end
 
@@ -60,6 +58,6 @@ end
 
 x0 = sigma_bar+eta_sigma*randn(num_sim_filter,1); % The starting values for filtering from initial distribution
 
-[LogL,Eff_particle,x_hat,x_std] = PF_basefunction_with_smoother_AR1(@PF_AR1_density,x0,observable_series,num_sim_filter,num_sim_smoother,rho_sigma,rho,sigma_bar,eta_sigma,shocks,randnr,name,smoother_dummy);
+[LogL,Eff_particle,x_hat,x_std] = PF_basefunction_with_smoother_AR1(@PF_AR1_density,x0,observable_series,num_sim_filter,num_sim_smoother,rho_sigma,rho,sigma_bar,eta_sigma,name,smoother_dummy);
 % add prior
 logpost=sum(LogL)+priorval;

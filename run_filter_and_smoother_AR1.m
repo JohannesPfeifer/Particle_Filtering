@@ -49,8 +49,8 @@ save data_simulated x siggma rho sigma_bar rho_sigma eta_sigma true_par
 
 %% settings
 
-num_sim_filter          = 200;         % Number of particles for a particle filter                            
-num_sim_smoother        = 200;         % Number of particles for a particle filter                            
+num_sim_filter          = 1000;         % Number of particles for a particle filter                            
+num_sim_smoother        = 1000;         % Number of particles for a particle filter                            
 dimy= 1;          % Number of variables in the set of observables (y)
 burnin = 500;
 MH_draws = 5000; 
@@ -66,14 +66,6 @@ observable_series=observable_series(~isnan(observable_series),:);
 npar=4;
 
 %% initialize random numbers
-PFstreamrandn = RandStream('mt19937ar','Seed',2);
-% The normally distributed shocks to the state equation for the particle filter
-shocks      = randn(PFstreamrandn,num_sim_filter,periods);
-
-% The random numbers (from a uniform(0,1) distribution) needed for the
-% resampling routine in the particle filter
-PFstreamrand = RandStream('mt19937ar','Seed',2);
-randnr             = rand(PFstreamrand,periods,num_sim_filter);
 
 %initialize matrices
 draws=zeros(MH_draws+burnin,npar);
@@ -101,7 +93,7 @@ Sigma_chol = cholcov(inv_Hessian)';
 %% Maximize posterior using the CMA-ES algorithm of Hansen et al. (for example included in Dynare and available at https://www.lri.fr/~hansen/cmaes_inmatlab.html)
 % vm=0.1*ones(npar,1);
 % opts=struct('MaxFunEvals',1000,'SaveVariables','off','DispFinal','off','WarnOnEqualFunctionValues','no','DispModulo','100','LogModulo','0','LogTime','0');
-% [x, FMIN, COUNTEVAL, STOPFLAG, OUT, BESTEVER] = cmaes('PF_caller_minimizer',draws(1,:)',vm,opts,observable_series,num_sim_filter,dimy,shocks,randnr,0);
+% [x, FMIN, COUNTEVAL, STOPFLAG, OUT, BESTEVER] = cmaes('PF_caller_minimizer',draws(1,:)',vm,opts,observable_series,num_sim_filter,dimy,0);
 % draws(1,:)=BESTEVER.x;
 
 %% Compute the Hessian at the mode, using Dynare's hessian.m; Note that this is not advocated as the numerical differentiation will usually not work 
@@ -109,19 +101,17 @@ Sigma_chol = cholcov(inv_Hessian)';
 % gstep = ones(2,1);
 % gstep(1) = 1e-2;
 % gstep(2) = 1.0;
-% hessian_mat = reshape(hessian('PF_caller',xopt,gstep,observable_series,num_sim_filter,dimy,shocks,randnr,0),length(xopt),length(xopt));
+% hessian_mat = reshape(hessian('PF_caller',xopt,gstep,observable_series,num_sim_filter,dimy,0),length(xopt),length(xopt));
 % Sigma_chol = cholcov(inv(hessian_mat))';
 
-
-old_posterior = PF_caller(draws(1,:),observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,0);
+old_posterior = PF_caller(draws(1,:),observable_series,num_sim_filter,num_sim_smoother,0);
 likelihood(1,1)=old_posterior;
-
 
 
 proposal_draws = scale_mh*Sigma_chol*randn(4,MH_draws+burnin);
 for ii=2:burnin+MH_draws
     xhatstar = draws(ii-1,:)+proposal_draws(:,ii)';
-    new_posterior = PF_caller(xhatstar,observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,0);
+    new_posterior = PF_caller(xhatstar,observable_series,num_sim_filter,num_sim_smoother,0);
     likelihood(ii,1)=new_posterior;
     accprob=exp(new_posterior-old_posterior);
     if rand(1,1)<=accprob
@@ -171,7 +161,7 @@ eta_sigma_trans=mean(draws(burnin:ii,3));
 sigma_bar_trans=mean(draws(burnin:ii,4));
 
 % make sure to use parameters as they are the input arguments!
-PF_caller([rho_sigma_trans,rho_trans,eta_sigma_trans,sigma_bar_trans],observable_series,num_sim_filter,num_sim_smoother,shocks,randnr,1,'Stoch_vol_AR_smoother');
+PF_caller([rho_sigma_trans,rho_trans,eta_sigma_trans,sigma_bar_trans],observable_series,num_sim_filter,num_sim_smoother,1,'Stoch_vol_AR_smoother');
 
 % load smoother results
 load Stoch_vol_AR_smoother vola_resids level_resids x_smoother_store xhat_smoother x_resampled_store
@@ -179,7 +169,7 @@ load Stoch_vol_AR_smoother vola_resids level_resids x_smoother_store xhat_smooth
 %plot them
 figure
 subplot(3,1,1)
-plot(1:periods,xhat_smoother,'r*','LineWidth',0.5)
+plot(1:periods,xhat_smoother,'r--','LineWidth',0.5)
 title('Volatility')
 hold on
 plot(1:periods,siggma,'b-','LineWidth',0.5)
@@ -188,7 +178,7 @@ legend('Smoothed','True','Filtered','Location','NorthWest')
 fprintf('Correlation States: %4.3f\n',corr(xhat_smoother',siggma))
 
 subplot(3,1,2)
-plot(1:periods,median(vola_resids,2)/eta_sigma,'r*','LineWidth',0.5)
+plot(1:periods,median(vola_resids,2)/eta_sigma,'r--','LineWidth',0.5)
 hold on
 plot(1:periods,eta_sigma*epsil(:,1),'b-','LineWidth',0.5)
 title('Vola Residuals')
@@ -196,7 +186,7 @@ fprintf('Correlation State Resids: %4.3f\n',corr(median(vola_resids,2),eta_sigma
 fprintf('Std State Resids: %4.3f\n',std(vola_resids(:)/eta_sigma))
 
 subplot(3,1,3)
-plot(1:periods,median(level_resids,2),'r*','LineWidth',0.5)
+plot(1:periods,median(level_resids,2),'r--','LineWidth',0.5)
 hold on
 plot(1:periods,epsil(:,2),'b-','LineWidth',0.5)
 title('Level Residuals')
