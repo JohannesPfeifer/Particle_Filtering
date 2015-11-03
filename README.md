@@ -22,4 +22,4 @@ The particle filter follows Arulampalam/Maskell/Gordon/Clapp (2002): "A Tutorial
 The smoother is implemented according to Godsill/Doucet/West(2004) "Monte Carlo smoothing for nonlinear time series", 
 	Journal of the American Statistical Association, 2004, 99, 156-168
 
-In case of questions or bugs, email us at pfeifer@uni-mannheim.de or born@uni-mannheim.de
+In case of questions or bugs, email us at pfeifer@uni-mannheim.de or born@uni-bonn.de
