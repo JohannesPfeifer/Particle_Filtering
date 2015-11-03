@@ -1,12 +1,15 @@
 % Generate Data from AR1-stochastic volatility model, run MCMC using particle filter on it. Then use smoother.
-% Notes: this code does not do mode-finding and computing Hessian at the mode, because the
-% likelihood from the particle filter is not differentiable
-% Instead, a diagonal matrix is used. This implies loss of efficiency but any 
-% positive definite matrix will still yield draws from the ergodic distribution 
-% (see Chib/Greenberg (1995))
 % 
-% To perform mode-finding using the CMA-ES algorithm, uncomment the code in lines 101 following and 
-% download the cmaes.m from the provided link.
+% Notes: 
+% - This code does not do mode-finding and computing Hessian at the mode, because the likelihood from the particle filter is not differentiable. 
+%   Instead, a diagonal matrix is used. This implies loss of efficiency but any positive definite matrix will still yield draws from the ergodic distribution 
+%   (see Chib/Greenberg (1995))
+% - To perform mode-finding using the CMA-ES algorithm, uncomment the code in lines 101 following and 
+%   download the cmaes.m from the provided link.
+% - Using an insufficient number of particles will yield problems with the acceptance rate, see Pitt et al. (2012):
+%   "On some properties of Markov chain Monte Carlo simulation methods based on the particle filter", Journal of Econometrics, 171, 134-151
+% - In contrast to SMM approaches, the simulations should not be conducted with fixed random numbers, unless the number of particles is really large. See 
+%   Thomas Flury and Neil Shephard (2011): "Bayesian Inference based only on simulated likelihood", Econometric Theory, 27, 933–956
 % 
 % Copyright (C) 2013-2015 Benjamin Born + Johannes Pfeifer
 %
