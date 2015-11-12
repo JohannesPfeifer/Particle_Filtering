@@ -1,5 +1,5 @@
 function [logpost,x_hat,x_std,Eff_particle]=PF_caller(draw,observable_series,num_sim_filter,num_sim_smoother,smoother_dummy,name)
-% [loglik, flag, xhat_PF0,x_std_PF0,Eff_particle]=Particle_smoother(draw,observable_series,num_sim,graph_dummy,name)
+%  [logpost,x_hat,x_std,Eff_particle]=PF_caller(draw,observable_series,num_sim_filter,num_sim_smoother,smoother_dummy,name)
 %Inputs:
 %   draw                [4 by 1] vector                 vector of estimated parameters
 %   observable_series   [T by 1] vector                 observed data
@@ -16,7 +16,7 @@ function [logpost,x_hat,x_std,Eff_particle]=PF_caller(draw,observable_series,num
 %  x_std                [T by 1] vector   standard deviation of the posterior
 %  Eff_particle     	[T by 1] vector   A measure of the effective sample size
 %
-% Copyright (C) 2013-2014 Benjamin Born + Johannes Pfeifer
+% Copyright (C) 2013-2015 Benjamin Born + Johannes Pfeifer
 %
 % This is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ sigma_bar=draw(4);
 
 [priorval,alarm]=evaluate_prior_AR1([rho_sigma,rho,eta_sigma,sigma_bar]);
 if alarm
-    logpost=Inf;
+    logpost=-Inf;
     return
 end
 
