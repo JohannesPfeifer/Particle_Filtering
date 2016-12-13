@@ -142,7 +142,9 @@ if smoother_dummy
            % We compute the normalized importance sampling weights
            if sum_density < 1e-12
                disp(t)
-               error('Zero density')
+               warning('Zero density in smoother encoutered')
+               x_smoother_store(traject_iter,:)=NaN;
+               break
            else
               weights      = density/sum_density;
            end
@@ -159,8 +161,8 @@ if smoother_dummy
            x_tilde_plus1=x_t_smoothed;
         end
     end
-    xhat_smoother = median(x_smoother_store,1);
-    x_std_smoother = std(x_smoother_store,0,1);
+    xhat_smoother = nanmedian(x_smoother_store,1);
+    x_std_smoother = nanstd(x_smoother_store,0,1);
     x_percentile_smoother = quantile(x_smoother_store,[0.025 0.975]);
 
     vola_resids=zeros(T_obs,num_sim_smoother);
