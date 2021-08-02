@@ -54,7 +54,7 @@ end
 %sigma_bar ~ U(-11,-3)
 ii=[4];
 if par(ii)>=(-11) && par(ii)<-3
-  priorval=priorval-log(7);
+  priorval=priorval-log(8);
 else
   alarm=1;  
   return
