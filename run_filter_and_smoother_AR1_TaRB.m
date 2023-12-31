@@ -170,7 +170,7 @@ for draw_iter=2:burnin+MH_draws
     end
 end
 % retransform parameters and plot them
-[rho_sigma_vec,rho_1_vec,eta_sigma_vec,sigma_bar_vec]=par_retransform_AR1(draws(burnin:ii,:));
+[rho_sigma_vec,rho_1_vec,eta_sigma_vec,sigma_bar_vec]=par_retransform_AR1(draws(burnin:draw_iter,:));
 figure
 subplot(4,1,1)
 plot(rho_sigma_vec)
@@ -197,10 +197,10 @@ num_sim_smoother = 200;
 % comment the following four line out to obtain smoothed estimates at the
 % true values
 
-rho_sigma_trans=mean(draws(burnin:ii,1));
-rho_trans=mean(draws(burnin:ii,2));
-eta_sigma_trans=mean(draws(burnin:ii,3));
-sigma_bar_trans=mean(draws(burnin:ii,4));
+rho_sigma_trans=mean(draws(burnin:draw_iter,1));
+rho_trans=mean(draws(burnin:draw_iter,2));
+eta_sigma_trans=mean(draws(burnin:draw_iter,3));
+sigma_bar_trans=mean(draws(burnin:draw_iter,4));
 
 % make sure to use parameters as they are the input arguments!
 PF_caller([rho_sigma_trans,rho_trans,eta_sigma_trans,sigma_bar_trans],observable_series,num_sim_filter,num_sim_smoother,1,'Stoch_vol_AR_smoother');
